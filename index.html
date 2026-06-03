@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://unpkg.com/nepali-date-converter@3.3.3/dist/nepali-date-converter.umd.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CELL-EXPRESS | ENTRY-BOOK</title>
+    <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background: #f8fafc;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            border-color: #ef4444;
+        }
+        .active-tab {
+            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+            border: none;
+        }
+        .active-tab i, .active-tab p, .active-tab h3 {
+            color: white !important;
+        }
+        .input-light {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        .input-light:focus {
+            border-color: #ef4444;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(239,68,68,0.2);
+        }
+        .btn-red {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        .btn-red:hover {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            border: 1px solid #cbd5e1;
+            background: white;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+            border-color: #ef4444;
+        }
+        .table-wrapper {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            font-size: 0.875rem;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover td {
+            background: #faf9fe;
+        }
+        .blur-strong {
+            filter: blur(24px);
+        }
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+        .modal-white {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        .pagination-btn {
+            transition: all 0.2s;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background: #f1f5f9;
+            border-color: #ef4444;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ef4444;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; z-index:9999;">
+        <div class="bg-white p-8 rounded-2xl w-96 shadow-2xl border border-slate-200">
+            <div class="flex justify-center mb-6">
+                <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center shadow-md">
+                    <i class="fas fa-microchip text-white text-2xl"></i>
+                </div>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 text-center mb-2">CELL-EXPRESS</h2>
+            <p class="text-slate-500 text-center text-sm mb-6">Entry Book Access</p>
+            <input id="loginEmail" type="email" placeholder="Email" class="w-full mb-4 px-4 py-3 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition">
+            <input id="loginPass" type="password" placeholder="Password" class="w-full mb-6 px-4 py-3 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition">
+            <button id="loginBtn" class="btn-red w-full py-3 font-bold text-white shadow-md transition">Access Book</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center shadow-sm">
+                    <i class="fas fa-microchip text-white text-sm"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-800">CELL-EXPRESS</h1>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ENTRY-BOOK</span>
+                </div>
+            </div>
+            <button onclick="toggleModal('entryModal')" class="btn-red px-4 py-2 font-semibold text-white shadow-md flex items-center gap-2 transition">
+                <i class="fas fa-plus-circle"></i> New Repair
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-5 md:p-8">
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
+            <div onclick="setTab('all')" id="card-all" class="stat-card p-4 cursor-pointer">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-layer-group text-2xl text-blue-500"></i>
+                    <span class="text-xs text-slate-400">Total</span>
+                </div>
+                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-1">Entries</p>
+                <h3 class="text-2xl font-bold text-slate-800" id="stat-total">0</h3>
+            </div>
+            <div onclick="setTab('pending')" id="card-pending" class="stat-card p-4 cursor-pointer">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-clock text-2xl text-amber-500"></i>
+                    <span class="text-xs text-slate-400">Active</span>
+                </div>
+                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-1">Pending</p>
+                <h3 class="text-2xl font-bold text-amber-600" id="stat-active">0</h3>
+            </div>
+            <div onclick="setTab('fixed')" id="card-fixed" class="stat-card p-4 cursor-pointer">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-circle-check text-2xl text-emerald-500"></i>
+                    <span class="text-xs text-slate-400">Completed</span>
+                </div>
+                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-1">Fixed</p>
+                <h3 class="text-2xl font-bold text-emerald-600" id="stat-fixed-count">0</h3>
+            </div>
+            <div onclick="setTab('returned')" id="card-returned" class="stat-card p-4 cursor-pointer">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-undo-alt text-2xl text-indigo-500"></i>
+                    <span class="text-xs text-slate-400">Closed</span>
+                </div>
+                <p class="text-slate-500 text-[11px] font-bold uppercase tracking-wider mb-1">Returned</p>
+                <h3 class="text-2xl font-bold text-indigo-600" id="stat-returned-count">0</h3>
+            </div>
+            <div onclick="toggleRevenueCensor()" id="revenueCard" class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl cursor-pointer border border-blue-100">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-coins text-2xl text-amber-500"></i>
+                    <span class="text-xs text-slate-500">Total</span>
+                </div>
+                <p class="text-blue-600 text-[11px] font-bold uppercase tracking-wider mb-1">Revenue</p>
+                <h3 id="stat-revenue" class="text-2xl font-bold text-slate-800 blur-strong transition-all duration-200">रू0</h3>
+            </div>
+        </div>
+
+        <!-- Search, Filters, Monthly Toggle -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-8">
+            <div class="flex gap-3 w-full md:w-auto flex-wrap items-center">
+                <div class="relative flex-1 md:w-80">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Search by customer, device, SN..." class="input-light w-full pl-10 pr-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none">
+                </div>
+                <select id="statusFilter" class="input-light px-4 py-3 text-slate-800 text-sm font-medium focus:outline-none">
+                    <option value="today">Today</option>
+                    <option value="all" selected>All</option>
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                    <option value="paid">Paid</option>
+                    <option value="unpaid">Unpaid</option>
+                </select>
+                <div class="flex items-center gap-2 input-light px-3 py-2">
+                    <button onclick="prevPeriod()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-600 transition">←</button>
+                    <span id="dateLabel" onclick="goToday()" class="text-sm font-semibold text-slate-700 min-w-[120px] text-center cursor-pointer hover:text-red-600 transition">Today</span>
+                    <button onclick="nextPeriod()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-600 transition">→</button>
+                </div>
+                <!-- Monthly Toggle Button -->
+                <button onclick="toggleViewMode()" id="viewToggleBtn" class="btn-outline px-4 py-3 flex items-center gap-2 text-slate-700 font-medium text-sm">
+                    <i id="viewToggleIcon" class="fas fa-calendar-alt transition-transform duration-300"></i>
+                    <span id="viewModeText">Day View</span>
+                </button>
+            </div>
+            <div onclick="toggleDueCensor()" id="dueCard" class="bg-red-50 px-5 py-3 rounded-xl flex items-center gap-3 border border-red-200 cursor-pointer group">
+                <i class="fas fa-hand-holding-dollar text-red-500 text-xl"></i>
+                <div>
+                    <p class="text-red-600 text-[10px] font-bold uppercase tracking-wider"> Credit</p>
+                    <h4 id="stat-credit" class="text-xl font-bold text-red-700 blur-strong transition-all duration-200">रू0</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination Top -->
+        <div id="paginationTop" class="mb-4"></div>
+
+        <!-- Repair Table -->
+        <div class="table-wrapper shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Customer</th>
+                            <th>Issue & Media</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="repairTableBody"></tbody>
+                </table>
+            </div>
+            <div id="noDataMessage" class="hidden py-16 text-center text-slate-400 text-sm">✨ No repairs found</div>
+        </div>
+
+        <!-- Pagination Bottom -->
+        <div id="paginationBottom" class="mt-4"></div>
+    </main>
+
+    <!-- Entry Modal -->
+    <div id="entryModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-5">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleModal('entryModal')"></div>
+        <div class="modal-white w-full max-w-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="bg-gradient-to-r from-red-500 to-red-700 p-5 text-white flex justify-between items-center">
+                <h2 id="modalTitle" class="text-xl font-bold">New Repair Job</h2>
+                <button onclick="toggleModal('entryModal')" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="repairForm" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto bg-white">
+                <input type="text" id="snNumber" placeholder="Serial Number" class="input-light p-3 text-slate-800">
+                <input type="text" id="customerName" placeholder="Client Name *" required class="input-light p-3 text-slate-800">
+                <input type="text" id="deviceModel" placeholder="Device Model *" required class="input-light p-3 text-slate-800">
+                <input type="text" id="issueType" placeholder="Issue Description *" required class="input-light p-3 text-slate-800">
+                <input type="tel" id="customerPhone" placeholder="Phone (optional)" class="input-light p-3 text-slate-800">
+                <input type="text" id="devicePassword" placeholder="Device Password (optional)" class="input-light p-3 text-slate-800">
+                <div class="md:col-span-2 space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Device Photos</label>
+                    <div class="flex gap-3">
+                        <input type="file" id="photoGallery" accept="image/*" class="hidden" onchange="handleImageUpload(this)">
+                        <input type="file" id="photoCamera" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(this)">
+                        <button type="button" onclick="document.getElementById('photoGallery').click()" class="flex-1 py-3 bg-slate-100 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-200 transition"><i class="fas fa-images mr-2"></i> Gallery</button>
+                        <button type="button" onclick="document.getElementById('photoCamera').click()" class="flex-1 py-3 bg-slate-100 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-200 transition"><i class="fas fa-camera mr-2"></i> Camera</button>
+                    </div>
+                    <div id="imagePreview" class="hidden relative w-20 h-20 rounded-xl border border-slate-200 overflow-hidden">
+                        <img id="previewImg" src="" class="w-full h-full object-cover">
+                        <button type="button" onclick="removeImage()" class="absolute top-0 right-0 bg-red-600 text-white p-1 text-[10px] rounded-bl-lg"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <input type="number" id="cost" placeholder="Total Cost (रू)" class="input-light p-3 text-slate-800">
+                <input type="number" id="paid" placeholder="Amount Paid (रू)" class="input-light p-3 text-slate-800">
+                <button type="submit" class="md:col-span-2 btn-red py-4 font-bold text-white shadow-md transition">Log Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="viewImageModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onclick="toggleModal('viewImageModal')">
+        <img id="fullSizeImage" src="" class="max-w-full max-h-full rounded-xl shadow-2xl border border-white/20">
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 translate-y-20 opacity-0 transition-all pointer-events-none z-[100]">
+        <div class="bg-slate-800 text-white px-6 py-3 rounded-2xl shadow-2xl text-sm font-semibold" id="toastMessage"></div>
+    </div>
+
+    <!-- Logs Modal -->
+    <div id="logsModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-5">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleModal('logsModal')"></div>
+        <div class="modal-white w-full max-w-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-5 text-white flex justify-between items-center">
+                <h2 class="text-xl font-bold">Change Logs</h2>
+                <button onclick="toggleModal('logsModal')" class="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="logsList" class="overflow-y-auto p-4 text-slate-700 bg-white"></div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js" defer></script>
+    <script>
+        // Optional: Update the toggle button text based on current view mode (your app.js already handles this, but this is for visual consistency)
+        function updateViewModeButton() {
+            const icon = document.getElementById('viewToggleIcon');
+            const textSpan = document.getElementById('viewModeText');
+            if (!icon || !textSpan) return;
+            // This will be updated by your existing toggleViewMode function, but we set initial
+            if (typeof currentView !== 'undefined') {
+                if (currentView === 'month') {
+                    icon.classList.add('rotate-180');
+                    textSpan.innerText = 'Month View';
+                } else {
+                    icon.classList.remove('rotate-180');
+                    textSpan.innerText = 'Day View';
+                }
+            }
+        }
+        // Call after your app.js loads, or just rely on app.js to update the icon. The app.js already toggles the icon rotation.
+        // The text update is new – you can add this to your toggleViewMode function in app.js.
+        // For simplicity, your existing toggleViewMode already works. The button now has a text label.
+    </script>
+</body>
+</html>
