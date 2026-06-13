@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://unpkg.com/nepali-date-converter@3.3.3/dist/nepali-date-converter.umd.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- MODIFIED VIEWPORT – disables zoom completely (including pinch‑to‑zoom) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CELL-EXPRESS | ENTRY-BOOK</title>
+    <script src="https://unpkg.com/nepali-date-converter@3.3.3/dist/nepali-date-converter.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Prevent auto‑zoom on inputs (force 16px) */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
         * {
             font-family: 'Inter', sans-serif;
@@ -328,12 +334,10 @@
 
     <script type="module" src="app.js" defer></script>
     <script>
-        // Optional: Update the toggle button text based on current view mode (your app.js already handles this, but this is for visual consistency)
         function updateViewModeButton() {
             const icon = document.getElementById('viewToggleIcon');
             const textSpan = document.getElementById('viewModeText');
             if (!icon || !textSpan) return;
-            // This will be updated by your existing toggleViewMode function, but we set initial
             if (typeof currentView !== 'undefined') {
                 if (currentView === 'month') {
                     icon.classList.add('rotate-180');
@@ -344,9 +348,6 @@
                 }
             }
         }
-        // Call after your app.js loads, or just rely on app.js to update the icon. The app.js already toggles the icon rotation.
-        // The text update is new – you can add this to your toggleViewMode function in app.js.
-        // For simplicity, your existing toggleViewMode already works. The button now has a text label.
     </script>
 </body>
 </html>
